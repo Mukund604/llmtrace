@@ -1,0 +1,24 @@
+{
+  "window_100": {
+    "No change": 0.006,
+    "Latency +10%": 0.038,
+    "Latency +25%": 0.484,
+    "Latency +50%": 1.0,
+    "Output length +25%": 0.258,
+    "Output length +50%": 0.932,
+    "Errors 1% to 3%": 0.006,
+    "Errors 1% to 6%": 0.008
+  },
+  "window_500": {
+    "No change": 0.0,
+    "Latency +10%": 0.452,
+    "Latency +25%": 1.0,
+    "Latency +50%": 1.0,
+    "Output length +25%": 1.0,
+    "Output length +50%": 1.0,
+    "Errors 1% to 3%": 0.124,
+    "Errors 1% to 6%": 0.898
+  },
+  "microseconds_per_span": 6.750420829921495,
+  "trials": 500
+}
