@@ -32,7 +32,7 @@ def line_chart(points, color, label, unit=""):
                    f'<text x="{left-6}" y="{y(top*f)+4:.1f}" text-anchor="end" font-size="10" fill="var(--muted)">{top*f:.3g}</text>' for f in (0, .5, 1))
     path = " ".join(f"{x(i):.1f},{y(v):.1f}" for i, (_, v) in enumerate(points))
     dots = "".join(f'<circle cx="{x(i):.1f}" cy="{y(v):.1f}" r="7" fill="transparent"><title>{html.escape(t)}: {v:.4g}{unit}</title></circle>' for i, (t, v) in enumerate(points))
-    labels = "".join(f'<text x="{x(i):.1f}" y="{h-6}" text-anchor="middle" font-size="10" fill="var(--muted)">{html.escape(points[i][0])}</text>' for i in (0, len(points) // 2, len(points) - 1))
+    labels = "".join(f'<text x="{x(i):.1f}" y="{h-6}" text-anchor="{"end" if i == len(points) - 1 and i else "start" if i == 0 else "middle"}" font-size="10" fill="var(--muted)">{html.escape(points[i][0])}</text>' for i in sorted({0, len(points) // 2, len(points) - 1}))
     return f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{html.escape(label)}">{grid}<polyline points="{path}" fill="none" stroke="var(--{color})" stroke-width="2"/>{dots}{labels}</svg>'
 
 
@@ -57,7 +57,7 @@ def render(path, note=""):
     cost = line_chart([(d, sum(r["cost"] or 0 for r in g)) for d, g in days], "s1", "Cost by day")
     errors = line_chart([(d, 100 * sum(r["status"] == "error" for r in g) / len(g)) for d, g in days], "s2", "Error rate by day", "%")
     tokens = line_chart([(d, percentile([r["output_tokens"] or 0 for r in g], .5)) for d, g in days], "s1", "Median output tokens by day")
-    alert_html = "".join(f'<div class="alert"><b>{html.escape(a["metric"])}</b> changed: median {a["baseline_p50"]:.4g} to {a["current_p50"]:.4g}</div>' for a in alerts) or "<p>No drift in the latest day.</p>"
+    alert_html = "".join(f'<div class="alert"><b>{html.escape(a["metric"])}</b> changed: {"rate" if a["metric"] == "error_rate" else "median"} {a["baseline_p50"]:.4g} to {a["current_p50"]:.4g}</div>' for a in alerts) or "<p>No drift in the latest day.</p>"
     table = "".join(f'<tr><td>{html.escape(str(k))}</td><td class="r">{v:,}</td></tr>' for k, v in sorted(s["errors"].items(), key=lambda kv: -kv[1])) or '<tr><td colspan="2">No errors</td></tr>'
     return f"""<!doctype html><html><head><meta charset="utf-8"><title>llmtrace</title><style>{CSS}</style></head><body>
 <h1>llmtrace</h1><div class="sub">{html.escape(note)}</div><div class="tiles">{tile_html}</div>
