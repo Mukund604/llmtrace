@@ -19,6 +19,6 @@
     "Errors 1% to 3%": 0.124,
     "Errors 1% to 6%": 0.898
   },
-  "microseconds_per_span": 6.750420829921495,
+  "microseconds_per_span": 9.857160419924185,
   "trials": 500
 }

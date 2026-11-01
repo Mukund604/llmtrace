@@ -18,7 +18,23 @@ llmtrace report traces.db
 llmtrace drift traces.db --hours 24    # exits 1 on drift, so cron or CI can alert
 ```
 
+## Dashboard
+
+`llmtrace dashboard traces.db --out dashboard.html` writes one offline HTML file. Hover a point for its value.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="results/charts/dashboard-dark.png" />
+<img src="results/charts/dashboard-light.png" width="100%" alt="Dashboard with stat tiles, daily latency, cost, error rate and token charts, drift alerts and failure types" />
+</picture>
+
+*Simulated month with an injected incident on the last day, so the alerts are expected.*
+
 ## How good is the drift detector?
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="results/charts/power-dark.png" />
+<img src="results/charts/power-light.png" width="100%" alt="Alert rate against true latency rise for four window sizes: larger windows detect smaller changes" />
+</picture>
 
 [`benchmarks/evaluate.py`](benchmarks/evaluate.py) simulates 500 trials per scenario with known changes, comparing a baseline window against a current one. The table shows how often an alert fired:
 
@@ -43,7 +59,7 @@ These are simulated log normal streams, not production traffic. Real traffic has
 * **Cost** from your own price table, so it can't go stale silently. Unknown models record $0 rather than a guess.
 * **Failures grouped by what you'd do about them:** transient, auth, bad output, too long, and other.
 
-Adding a span costs about 7 microseconds on the calling thread, because writes are batched on a background thread and enqueue only. Spans still in memory are lost if the process is killed, though a normal exit flushes them.
+Adding a span costs about 10 microseconds on the calling thread, because writes are batched on a background thread and enqueue only. Spans still in memory are lost if the process is killed, though a normal exit flushes them.
 
 ## Limitations
 
@@ -57,5 +73,5 @@ Adding a span costs about 7 microseconds on the calling thread, because writes a
 ```
 pip install -e ".[dev]"
 pytest
-python -m benchmarks.evaluate
+python -m benchmarks.evaluate    # needs matplotlib
 ```

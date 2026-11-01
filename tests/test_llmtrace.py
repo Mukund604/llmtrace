@@ -119,3 +119,25 @@ def test_cli(tmp_path, capsys):
     assert main(["report", str(path)]) == 0
     assert json.loads(capsys.readouterr().out)["calls"] == 1
     assert main(["drift", str(path)]) == 0
+
+
+def test_dashboard_is_self_contained(tmp_path, capsys):
+    t, path = tracer(tmp_path)
+    for name in ("<b>", "x"):
+        with t.llm(name, "m") as span:
+            span.record(10, 10, output="hi")
+    with pytest.raises(ValueError):
+        with t.llm("bad", "m"):
+            raise ValueError("parse failed")
+    t.close()
+    out = tmp_path / "d.html"
+    assert main(["dashboard", str(path), "--out", str(out)]) == 0
+    text = out.read_text()
+    assert "<svg" in text and "http://" not in text and "bad_output" in text
+
+
+def test_dashboard_with_no_rows(tmp_path):
+    from llmtrace.dashboard import render
+    t, path = tracer(tmp_path)
+    t.close()
+    assert "No data" in render(path)
